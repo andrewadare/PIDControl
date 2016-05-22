@@ -31,9 +31,6 @@ public:
   // Set/change dt and update time-scaling factors for ki, kd.
   void setUpdateInterval(unsigned long updateInterval /*ms*/);
 
-  // Constrain value to min <= value <= max
-  void clamp(float value, float min, float max);
-
   // Coefficients for the 3 PID terms (error e defined as setpoint - input):
   // Proportional (kp*e), integral (ki*sum(e) over dt), and derivative (kd*de/dt)
   // Public for convenient read access, but use setPID to assign.
@@ -44,12 +41,12 @@ public:
   // Target value for output
   float setpoint;
 
-  // Computed output value (sum of 3 terms above) and its allowed range
+  // Computed output value and its boundaries
   float output;
   float minOutput;
   float maxOutput;
 
-  // Parameter update interval in ms. Fixed, regardless of input rate.
+  // Parameter update interval in ms. Fixed, regardless of input sample rate.
   // Public for convenient read access, but use setUpdateInterval to assign.
   unsigned long dt;
 

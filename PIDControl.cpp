@@ -34,23 +34,18 @@ void PIDControl::update(float input, float deadband)
   // Store integral term separately to handle a time-varying ki gain parameter
   integralTerm += (ki * error);
 
-  clamp(integralTerm, minOutput, maxOutput);
+  constrain(integralTerm, minOutput, maxOutput);
 
   // Compute PID output.
   // Note that d/dt (setpoint) is excluded from the derivative term to avoid
   // spikes from fast setpoint changes.
   float output = kp * error + integralTerm - kd * (input - prevInput);
 
-  clamp(output, minOutput, maxOutput);
+  constrain(output, minOutput, maxOutput);
 
   // Store for next call
   prevInput = input;
   prevTime = now;
-}
-
-void PIDControl::clamp(float value, float min, float max)
-{
-  value = value < min ? min : value > max ? max : value;
 }
 
 void PIDControl::setPID(float p, float i, float d)
