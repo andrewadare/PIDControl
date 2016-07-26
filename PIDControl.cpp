@@ -39,7 +39,7 @@ void PIDControl::update(float input, float deadband)
   // Compute PID output.
   // Note that d/dt (setpoint) is excluded from the derivative term to avoid
   // spikes from fast setpoint changes.
-  float output = kp * error + integralTerm - kd * (input - prevInput);
+  output = kp * error + integralTerm - kd * (input - prevInput);
 
   constrain(output, minOutput, maxOutput);
 
