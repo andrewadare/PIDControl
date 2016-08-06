@@ -14,13 +14,13 @@
 #ifndef __PID_CONTROL_H__
 #define __PID_CONTROL_H__
 
-class PIDControl
+class ArPID
 {
 public:
 
-  PIDControl(float p, float i, float d, float initialSetpoint, unsigned long timestep);
+  ArPID(float p, float i, float d, float initialSetpoint, unsigned long timestep);
 
-  ~PIDControl() {}
+  ~ArPID() {}
 
   // Compute new output. If |error| < deadband, don't bother.
   void update(float input, float deadband = 0);

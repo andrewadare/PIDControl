@@ -12,7 +12,7 @@
 // The voltage can be watched on a scope while the setpoint and PID parameters
 // are varied.
 
-#include <PIDControl.h>
+#include <ArPID.h>
 
 #define ADC_PIN 0 // A0
 #define PWM_PIN 9
@@ -25,7 +25,7 @@ unsigned int adc16 = 0;      // 16 * running average
 String cmd = "";
 int dutyCycle = 0;
 
-PIDControl pid(kp, ki, kd, initialSetpoint, timestep);
+ArPID pid(kp, ki, kd, initialSetpoint, timestep);
 
 void printStatus()
 {
