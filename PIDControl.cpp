@@ -1,7 +1,7 @@
 #include "Arduino.h"
-#include "ArPID.h"
+#include "PIDControl.h"
 
-ArPID::ArPID(float p, float i, float d, float initialSetpoint, unsigned long timestep) :
+PIDControl::PIDControl(float p, float i, float d, float initialSetpoint, unsigned long timestep) :
   kp(p),
   ki(i),
   kd(d),
@@ -19,7 +19,7 @@ ArPID::ArPID(float p, float i, float d, float initialSetpoint, unsigned long tim
   prevTime = millis() - dt;
 }
 
-void ArPID::update(float input, float deadband)
+void PIDControl::update(float input, float deadband)
 {
   unsigned long now = millis();
 
@@ -48,7 +48,7 @@ void ArPID::update(float input, float deadband)
   prevTime = now;
 }
 
-void ArPID::setPID(float p, float i, float d)
+void PIDControl::setPID(float p, float i, float d)
 {
   kp = p;
 
@@ -59,7 +59,7 @@ void ArPID::setPID(float p, float i, float d)
   kd = d / dtSeconds;
 }
 
-void ArPID::setUpdateInterval(unsigned long updateInterval)
+void PIDControl::setUpdateInterval(unsigned long updateInterval)
 {
   dt = updateInterval;
 
