@@ -1,9 +1,16 @@
+// This example simply connects an AnalogOut pin to an AnalogIn pin. A scope
+// is used to observe the response to instantaneous setpoint changes as the
+// PID gain coefficients are varied.
+// Enter a setpoint by selecting an integer in 0 (0V) - 1000 (3.3V), and change
+// the PID gain parameters with the p,l,i,k,d,c keys.
+
 #include "mbed.h"
 #include "PIDControl.h"
 
 // PID parameters
-float kp = 2, ki = 100, kd = 0;
-float initialSetpoint = 0.5; // Half max or 512 ADC units
+// float kp = 2, ki = 100, kd = 0;
+float kp = 0.2, ki = 50, kd = 0;
+float initial_setpoint = 0.5; // Half max or 512 ADC units
 int timestep = 20; // ms
 float input;
 
@@ -12,9 +19,9 @@ Serial pc(USBTX, USBRX);
 char cmd[100];
 
 AnalogIn ain(A0);
-AnalogOut aout();
+AnalogOut aout(A3);
 
-PIDControl pid(kp, ki, kd, initialSetpoint, timestep);
+PIDControl pid(kp, ki, kd, initial_setpoint, timestep);
 
 void handle_byte(char b)
 {
@@ -26,9 +33,9 @@ void handle_byte(char b)
 
   // ki
   if (b == 'i') // increase ki
-    ki += 0.1;
+    ki += 1.0;
   if (b == 'k') // decrease ki
-    ki -= 0.1;
+    ki -= 1.0;
 
   // kd
   if (b == 'd') // increase kd
@@ -41,7 +48,7 @@ void handle_byte(char b)
   {
     pid.setpoint = atof(cmd)/1000;
     pid.clamp(pid.setpoint, pid.minOutput, pid.maxOutput);
-    pc.printf("\r\nsetpoint: %f", pid.setpoint);
+    pc.printf("\r\nsetpoint: %f\r\n", pid.setpoint);
     cmd[0] = 0; // Reset for next use
   }
 
@@ -58,7 +65,7 @@ void handle_byte(char b)
   else
   {
     pid.setPID(kp, ki, kd);
-    pc.printf("kp,ki,kd: %f %f %f; p,i,d: %f %f %f; setpoint: %f; output: %f",
+    pc.printf("kp,ki,kd: %f %f %f; p,i,d: %f %f %f; setpoint: %f; output: %f\r\n",
               kp,ki,kd,
               pid.kp,pid.ki,pid.kd,
               pid.setpoint,
@@ -73,10 +80,14 @@ int main()
 
   pc.baud(115200);
 
+  aout.write(initial_setpoint);
+
   while (true)
   {
     input = ain.read();
     pid.update(input);
+    aout.write(pid.output);
+
     if (pc.readable())
     {
       handle_byte(pc.getc());

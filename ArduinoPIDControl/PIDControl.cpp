@@ -25,23 +25,27 @@ void PIDControl::update(float input, float deadband)
 
   float error = setpoint - input;
 
-  // Return early if it's too soon for an update or if no correction is required.
-  if (now - prevTime < dt || fabs(error) < deadband)
+  // Return early if it's too soon for an update.
+  if (now - prevTime < dt)
   {
     return;
   }
 
   // Store integral term separately to handle a time-varying ki gain parameter
-  integralTerm += (ki * error);
+  integralTerm += ki*error;
 
+  // Avoid integral windup by clamping integral term to output limits
   constrain(integralTerm, minOutput, maxOutput);
 
-  // Compute PID output.
-  // Note that d/dt (setpoint) is excluded from the derivative term to avoid
-  // spikes from fast setpoint changes.
-  output = kp * error + integralTerm - kd * (input - prevInput);
+  if (fabs(error) > deadband)
+  {
+    // Compute PID output.
+    // Note that d/dt (setpoint) is excluded from the derivative term to avoid
+    // spikes from fast setpoint changes.
+    output = kp * error + integralTerm - kd * (input - prevInput);
 
-  constrain(output, minOutput, maxOutput);
+    constrain(output, minOutput, maxOutput);
+  }
 
   // Store for next call
   prevInput = input;

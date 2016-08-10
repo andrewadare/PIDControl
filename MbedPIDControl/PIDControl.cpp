@@ -25,21 +25,30 @@ void PIDControl::update(float input, float deadband)
 
   float error = setpoint - input;
 
-  // Return early if it's too soon for an update or if no correction is required.
-  if (now - prevTime < dt || fabs(error) < deadband)
+  // Return early if it's too soon for an update
+  if (now - prevTime < dt)
   {
     return;
   }
 
   // Store integral term separately to handle a time-varying ki gain parameter.
-  integralTerm += (ki * error);
+  integralTerm += ki*error;
+
+  // Limit integral windup. Output limits used here; other choices are possible.
   clamp(integralTerm, minOutput, maxOutput);
 
   // Compute PID output.
-  // Note that d/dt (setpoint) is excluded from the derivative term to avoid
-  // spikes from fast setpoint changes.
-  output = kp * error + integralTerm - kd * (input - prevInput);
-  clamp(output, minOutput, maxOutput);
+  if (fabs(error) > deadband)
+  {
+    // Derivative term kd*de/dt adds a predictive component to the correction.
+    // de/dt = d(setpoint - input)/dt = -d(input)/dt if setpoint is constant.
+    // Here, exclude d/dt(setpoint) altogether, assuming step-like time dependence
+    // of the setpoint (contributes either nothing or large spikes to output).
+    float derivativeTerm = kd*(prevInput - input);
+
+    output = kp*error + integralTerm + derivativeTerm;
+    clamp(output, minOutput, maxOutput);
+  }
 
   // Store for next call
   prevInput = input;
@@ -68,5 +77,5 @@ void PIDControl::setUpdateInterval(unsigned long updateInterval)
 void PIDControl::clamp(float &x, float lo, float hi)
 {
   if (x < lo) x = lo;
-  if (x > hi) x = hi;
+  else if (x > hi) x = hi;
 }
