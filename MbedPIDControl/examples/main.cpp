@@ -10,7 +10,7 @@
 // PID parameters
 // float kp = 2, ki = 100, kd = 0;
 float kp = 0.2, ki = 50, kd = 0;
-float initial_setpoint = 0.5; // Half max or 512 ADC units
+float initial_setpoint = 0.5;
 int timestep = 20; // ms
 float input;
 
