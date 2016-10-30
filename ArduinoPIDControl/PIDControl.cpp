@@ -21,12 +21,12 @@ PIDControl::PIDControl(float p, float i, float d, float initialSetpoint, unsigne
 
 void PIDControl::update(float input, float deadband)
 {
-  unsigned long now = millis();
+  unsigned long timeMark = millis();
 
   float error = setpoint - input;
 
   // Return early if it's too soon for an update.
-  if (now - prevTime < dt)
+  if (timeMark - prevTime < dt)
   {
     return;
   }
@@ -49,7 +49,7 @@ void PIDControl::update(float input, float deadband)
 
   // Store for next call
   prevInput = input;
-  prevTime = now;
+  prevTime = timeMark;
 }
 
 void PIDControl::setPID(float p, float i, float d)
