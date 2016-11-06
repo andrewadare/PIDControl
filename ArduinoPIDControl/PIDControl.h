@@ -3,13 +3,13 @@
 // http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/
 //
 // Differences:
-// - Minimal API: everything is public to keep the library as small and simple as possible.
-// - Names and comments are different (part of my learning process)
-// - Doesn't rely on global variables in user code.
-// - For efficiency, optionally skip PID update if error is sufficiently small.
+// - Minimal API: fields are public to keep the library small and simple
+// - Naming, style conventions, and comments (part of my learning process)
+// - Doesn't rely on modifying global variables in user code
+// - Deadband option: skip PID update if error is sufficiently small
 // - No manual/auto selection (always on, but see deadband option)
-// - No option for "direction". If a reverse-PID loop is needed, simply use
-//   maxOutput - output instead of output.
+// - This is a conventional reverse-acting loop. If a direct-acting loop is needed,
+//   negate the output (possibly with an offset, like maxOutput - output).
 
 #ifndef __PID_CONTROL_H__
 #define __PID_CONTROL_H__
@@ -18,18 +18,42 @@ class PIDControl
 {
 public:
 
+  /**
+   * @constructor
+   *
+   * @param p - proportional gain coefficient (corrects error as it arises)
+   * @param i - integral gain or "reset" coefficient (corrects drift)
+   * @param d - derivative gain or "preact" coefficient (anticipates changes)
+   * @param initialSetpoint - in units of the process variable
+   * @param timestep - update interval in milliseconds
+   */
   PIDControl(float p, float i, float d, float initialSetpoint, unsigned long timestep);
 
   ~PIDControl() {}
 
-  // Compute new output. If |error| < deadband, don't bother.
+  /**
+   * Compute new output. If |error| < deadband, output is unchanged.
+   *
+   * @param input - process variable (measured feedback quantity)
+   * @param [deadband] - error threshold for update
+   */
   void update(float input, float deadband = 0);
 
-  // Set/change kp, ki, kd and scale so output is independent of choice of dt.
+  /**
+   * Set/change kp, ki, kd and scale so output is independent of choice of dt.
+   *
+   * @param p - proportional gain
+   * @param i - integral gain
+   * @param d - derivative gain
+   */
   void setPID(float p, float i, float d);
 
-  // Set/change dt and update time-scaling factors for ki, kd.
-  void setUpdateInterval(unsigned long updateInterval /*ms*/);
+  /**
+   * Set/change dt and update time-scaling factors for ki, kd.
+   *
+   * @param updateInterval - in milliseconds
+   */
+  void setUpdateInterval(unsigned long updateInterval);
 
   // Coefficients for the 3 PID terms (error e defined as setpoint - input):
   // Proportional (kp*e), integral (ki*sum(e) over dt), and derivative (kd*de/dt)
