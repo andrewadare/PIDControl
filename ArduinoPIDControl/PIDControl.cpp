@@ -1,4 +1,3 @@
-#include "Arduino.h"
 #include "PIDControl.h"
 
 PIDControl::PIDControl(float p, float i, float d, float initialSetpoint, unsigned long timestep) :
@@ -6,9 +5,9 @@ PIDControl::PIDControl(float p, float i, float d, float initialSetpoint, unsigne
   ki(i),
   kd(d),
   setpoint(initialSetpoint),
-  output(0),
-  minOutput(0),
-  maxOutput(255),
+  output(0.0),
+  minOutput(-1.0),
+  maxOutput(1.0),
   dt(timestep),
   integralTerm(0),
   prevInput(0),
@@ -16,17 +15,14 @@ PIDControl::PIDControl(float p, float i, float d, float initialSetpoint, unsigne
 {
   setPID(p, i, d);
   setUpdateInterval(timestep);
-  prevTime = millis() - dt;
 }
 
-void PIDControl::update(float input, float deadband)
+void PIDControl::update(float input, unsigned long currentTime)
 {
-  unsigned long timeMark = millis();
-
   float error = setpoint - input;
 
   // Return early if it's too soon for an update.
-  if (timeMark - prevTime < dt)
+  if (currentTime - prevTime < dt)
   {
     return;
   }
@@ -34,33 +30,28 @@ void PIDControl::update(float input, float deadband)
   // Store integral term separately to handle a time-varying ki gain parameter
   integralTerm += ki*error;
 
-  // Avoid integral windup by clamping integral term to output limits
-  constrain(integralTerm, minOutput, maxOutput);
+  // Avoid integral windup by constraining integral term to output limits
+  clamp(integralTerm, minOutput, maxOutput);
 
-  if (fabs(error) > deadband)
-  {
-    // Compute PID output.
-    // Note that d/dt (setpoint) is excluded from the derivative term to avoid
-    // spikes from fast setpoint changes.
-    output = kp * error + integralTerm - kd * (input - prevInput);
+  // Compute PID output.
+  // Note that d(setpoint)/dt is excluded from the derivative term to avoid
+  // spikes from fast setpoint changes.
+  output = kp * error + integralTerm - kd * (input - prevInput);
 
-    constrain(output, minOutput, maxOutput);
-  }
+  clamp(output, minOutput, maxOutput);
 
   // Store for next call
   prevInput = input;
-  prevTime = timeMark;
+  prevTime = currentTime;
 }
 
 void PIDControl::setPID(float p, float i, float d)
 {
   kp = p;
 
-  // The dtSeconds factor corrects for step-size dependence in the integration
-  // and differentiation.
-  float dtSeconds = (float)dt / 1000;
-  ki = i * dtSeconds;
-  kd = d / dtSeconds;
+  // Correct for step-size dependence in the integration and differentiation.
+  ki = i * dt;
+  kd = d / dt;
 }
 
 void PIDControl::setUpdateInterval(unsigned long updateInterval)

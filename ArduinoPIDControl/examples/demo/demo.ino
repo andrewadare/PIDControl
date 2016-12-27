@@ -17,7 +17,7 @@
 #define ADC_PIN 0 // A0
 #define PWM_PIN 9
 
-float kp = 2, ki = 100, kd = 0;
+float kp = 2, ki = 0.1, kd = 0;
 
 float initialSetpoint = 0.5; // Half max or 512 ADC units
 unsigned long timestep = 20; // ms
@@ -115,7 +115,7 @@ void loop()
 
   // Convert to an input value in the 0-1 range and compute the PID output
   float input = float(adc16 >> 4)/1023;
-  pid.update(input);
+  pid.update(input, millis());
 
   // From the PID output value (which is in the -1 to +1 range), compute an 8-bit
   // PWM duty cycle value. Scale up by 1e4 to improve accuracy of integer math.

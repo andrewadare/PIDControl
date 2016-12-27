@@ -1,18 +1,20 @@
-// Simple PID control class for Arduino. Based on https://github.com/br3ttb/Arduino-PID-Library
+// Simple PID control class. Based on https://github.com/br3ttb/Arduino-PID-Library
 // and the accompanying explanations at
 // http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/
 //
 // Differences:
 // - Minimal API: fields are public to keep the library small and simple
+// - Platform-independent: no dependencies
 // - Naming, style conventions, and comments (part of my learning process)
 // - Doesn't rely on modifying global variables in user code
-// - Deadband option: skip PID update if error is sufficiently small
-// - No manual/auto selection (always on, but see deadband option)
+// - No manual/auto selection (always on; switch externally if needed.)
 // - This is a conventional reverse-acting loop. If a direct-acting loop is needed,
-//   negate the output (possibly with an offset, like maxOutput - output).
+//   negate the output (possibly with an offset).
 
 #ifndef __PID_CONTROL_H__
 #define __PID_CONTROL_H__
+
+#define clamp(val,low,high) ((val)<(low)?(low):((val)>(high)?(high):(val)))
 
 class PIDControl
 {
@@ -25,19 +27,19 @@ public:
    * @param i - integral gain or "reset" coefficient (corrects drift)
    * @param d - derivative gain or "preact" coefficient (anticipates changes)
    * @param initialSetpoint - in units of the process variable
-   * @param timestep - update interval in milliseconds
+   * @param timestep - update interval (typically ms, but other time units permitted)
    */
   PIDControl(float p, float i, float d, float initialSetpoint, unsigned long timestep);
 
   ~PIDControl() {}
 
   /**
-   * Compute new output. If |error| < deadband, output is unchanged.
+   * Compute new output.
    *
    * @param input - process variable (measured feedback quantity)
-   * @param [deadband] - error threshold for update
+   * @param currentTime - time when update is called. Units must match this.dt
    */
-  void update(float input, float deadband = 0);
+  void update(float input, unsigned long currentTime);
 
   /**
    * Set/change kp, ki, kd and scale so output is independent of choice of dt.
@@ -51,7 +53,7 @@ public:
   /**
    * Set/change dt and update time-scaling factors for ki, kd.
    *
-   * @param updateInterval - in milliseconds
+   * @param updateInterval - timestep value
    */
   void setUpdateInterval(unsigned long updateInterval);
 
@@ -70,7 +72,7 @@ public:
   float minOutput;
   float maxOutput;
 
-  // Parameter update interval in ms. Fixed, regardless of input sample rate.
+  // Parameter update interval. Fixed, regardless of input sample rate.
   // Public for convenient read access, but use setUpdateInterval to assign.
   unsigned long dt;
 
