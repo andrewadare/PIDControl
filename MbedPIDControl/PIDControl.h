@@ -32,7 +32,7 @@ public:
   void setPID(float p, float i, float d);
 
   // Set/change dt and update time-scaling factors for ki, kd.
-  void setUpdateInterval(unsigned long updateInterval /*ms*/);
+  void setDtMilliseconds(unsigned long updateInterval /*ms*/);
 
   // Utility method to constrain x within [lo, hi].
   void clamp(float &x, float lo, float hi);
@@ -53,7 +53,7 @@ public:
   float maxOutput;
 
   // Parameter update interval in ms. Fixed, regardless of input sample rate.
-  // Public for convenient read access, but use setUpdateInterval to assign.
+  // Public for convenient read access, but use setDtMilliseconds to assign.
   int dt;
 
   // Timer class from Mbed SDK

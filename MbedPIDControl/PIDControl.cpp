@@ -15,7 +15,7 @@ PIDControl::PIDControl(float p, float i, float d, float initialSetpoint, int tim
   prevTime(0)
 {
   setPID(p, i, d);
-  setUpdateInterval(timestep);
+  setDtMilliseconds(timestep);
   timer.start();
 }
 
@@ -66,7 +66,7 @@ void PIDControl::setPID(float p, float i, float d)
   kd = d / dtSeconds;
 }
 
-void PIDControl::setUpdateInterval(unsigned long updateInterval)
+void PIDControl::setDtMilliseconds(unsigned long updateInterval)
 {
   dt = updateInterval;
 

@@ -14,7 +14,6 @@
 #ifndef __PID_CONTROL_H__
 #define __PID_CONTROL_H__
 
-#define clamp(val,low,high) ((val)<(low)?(low):((val)>(high)?(high):(val)))
 
 class PIDControl
 {
@@ -42,6 +41,17 @@ public:
   void update(float input, unsigned long currentTime);
 
   /**
+   * Return val if within limits or nearest limit if outside.
+   *
+   * @param  val - input value
+   * @param  low - lower limit
+   * @param  high - upper limit
+   *
+   * @return clamped value
+   */
+  float clamped(float val, float low, float high);
+
+  /**
    * Set/change kp, ki, kd and scale so output is independent of choice of dt.
    *
    * @param p - proportional gain
@@ -55,7 +65,7 @@ public:
    *
    * @param updateInterval - timestep value
    */
-  void setUpdateInterval(unsigned long updateInterval);
+  void setDtMilliseconds(unsigned long updateInterval);
 
   // Coefficients for the 3 PID terms (error e defined as setpoint - input):
   // Proportional (kp*e), integral (ki*sum(e) over dt), and derivative (kd*de/dt)
@@ -73,7 +83,7 @@ public:
   float maxOutput;
 
   // Parameter update interval. Fixed, regardless of input sample rate.
-  // Public for convenient read access, but use setUpdateInterval to assign.
+  // Public for convenient read access, but use setDtMilliseconds to assign.
   unsigned long dt;
 
   // Explicitly store the PID integral term.

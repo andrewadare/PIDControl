@@ -14,7 +14,7 @@ PIDControl::PIDControl(float p, float i, float d, float initialSetpoint, unsigne
   prevTime(0)
 {
   setPID(p, i, d);
-  setUpdateInterval(timestep);
+  setDtMilliseconds(timestep);
 }
 
 void PIDControl::update(float input, unsigned long currentTime)
@@ -31,14 +31,14 @@ void PIDControl::update(float input, unsigned long currentTime)
   integralTerm += ki*error;
 
   // Avoid integral windup by constraining integral term to output limits
-  clamp(integralTerm, minOutput, maxOutput);
+  integralTerm = clamped(integralTerm, minOutput, maxOutput);
 
   // Compute PID output.
   // Note that d(setpoint)/dt is excluded from the derivative term to avoid
   // spikes from fast setpoint changes.
   output = kp * error + integralTerm - kd * (input - prevInput);
 
-  clamp(output, minOutput, maxOutput);
+  output = clamped(output, minOutput, maxOutput);
 
   // Store for next call
   prevInput = input;
@@ -54,10 +54,16 @@ void PIDControl::setPID(float p, float i, float d)
   kd = d / dt;
 }
 
-void PIDControl::setUpdateInterval(unsigned long updateInterval)
+void PIDControl::setDtMilliseconds(unsigned long updateInterval)
 {
-  dt = updateInterval;
+  dt = updateInterval; // ms
 
   // Adjust PID parameters for the new time step size
   setPID(kp, ki, kd);
 }
+
+float PIDControl::clamped(float val, float low, float high)
+{
+  return val < low ? low : val > high ? high : val;
+}
+
