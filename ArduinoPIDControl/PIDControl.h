@@ -26,7 +26,7 @@ public:
    * @param i - integral gain or "reset" coefficient (corrects drift)
    * @param d - derivative gain or "preact" coefficient (anticipates changes)
    * @param initialSetpoint - in units of the process variable
-   * @param timestep - update interval (typically ms, but other time units permitted)
+   * @param timestep - update interval in milliseconds
    */
   PIDControl(float p, float i, float d, float initialSetpoint, unsigned long timestep);
 
