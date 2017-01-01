@@ -1,15 +1,3 @@
-// Simple PID control class. Based on https://github.com/br3ttb/Arduino-PID-Library
-// and the accompanying explanations at
-// http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/
-//
-// Differences:
-// - Minimal API: fields are public to keep the library small and simple
-// - Platform-independent: no dependencies
-// - Naming, style conventions, and comments (part of my learning process)
-// - Doesn't rely on modifying global variables in user code
-// - No manual/auto selection (always on; switch externally if needed.)
-// - This is a conventional reverse-acting loop. If a direct-acting loop is needed,
-//   negate the output (possibly with an offset).
 
 #ifndef __PID_CONTROL_H__
 #define __PID_CONTROL_H__
@@ -37,8 +25,9 @@ public:
    *
    * @param input - process variable (measured feedback quantity)
    * @param currentTime - time when update is called. Units must match this.dt
+   * @param extIntFactor - external integrator factor
    */
-  void update(float input, unsigned long currentTime);
+  void update(float input, unsigned long currentTime, float extIntFactor = 1.0);
 
   /**
    * Return val if within limits or nearest limit if outside.

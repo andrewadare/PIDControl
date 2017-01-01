@@ -17,7 +17,7 @@ PIDControl::PIDControl(float p, float i, float d, float initialSetpoint, unsigne
   setDtMilliseconds(timestep);
 }
 
-void PIDControl::update(float input, unsigned long currentTime)
+void PIDControl::update(float input, unsigned long currentTime, float extIntFactor)
 {
   float error = setpoint - input;
 
@@ -28,7 +28,7 @@ void PIDControl::update(float input, unsigned long currentTime)
   }
 
   // Store integral term separately to handle a time-varying ki gain parameter
-  integralTerm += ki*error;
+  integralTerm += extIntFactor*ki*error;
 
   // Avoid integral windup by constraining integral term to output limits
   integralTerm = clamped(integralTerm, minOutput, maxOutput);
