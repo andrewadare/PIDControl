@@ -46,8 +46,7 @@ void handle_byte(char b)
   // Input completed - convert to a float in [0,1] and update setpoint
   if (b == '\r' || b == '\n')
   {
-    pid.setpoint = atof(cmd)/1000;
-    pid.clamp(pid.setpoint, pid.minOutput, pid.maxOutput);
+    pid.setpoint = PIDControl::clamped(atof(cmd)/1000, pid.minOutput, pid.maxOutput);
     pc.printf("\r\nsetpoint: %f\r\n", pid.setpoint);
     cmd[0] = 0; // Reset for next use
   }
@@ -85,7 +84,7 @@ int main()
   while (true)
   {
     input = ain.read();
-    pid.update(input);
+    pid.update(input, millis());
     aout.write(pid.output);
 
     if (pc.readable())
