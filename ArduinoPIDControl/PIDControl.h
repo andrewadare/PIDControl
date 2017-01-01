@@ -49,7 +49,7 @@ public:
    *
    * @return clamped value
    */
-  float clamped(float val, float low, float high);
+  static float clamped(float val, float low, float high);
 
   /**
    * Set/change kp, ki, kd and scale so output is independent of choice of dt.
