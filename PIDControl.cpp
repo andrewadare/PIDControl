@@ -1,34 +1,33 @@
 #include "PIDControl.h"
 
-PIDControl::PIDControl(float p, float i, float d, float initialSetpoint, unsigned long timestep) :
-  kp(p),
-  ki(i),
-  kd(d),
-  setpoint(initialSetpoint),
-  output(0.0),
-  minOutput(-1.0),
-  maxOutput(1.0),
-  dt(timestep),
-  integralTerm(0),
-  prevInput(0),
-  prevTime(0)
-{
+PIDControl::PIDControl(float p, float i, float d, float initialSetpoint,
+                       unsigned long timestep)
+    : kp(p),
+      ki(i),
+      kd(d),
+      setpoint(initialSetpoint),
+      output(0.0),
+      minOutput(-1.0),
+      maxOutput(1.0),
+      dt(timestep),
+      integralTerm(0),
+      prevInput(0),
+      prevTime(0) {
   setPID(p, i, d);
   setDtMilliseconds(timestep);
 }
 
-void PIDControl::update(float input, unsigned long currentTime, float extIntFactor)
-{
+void PIDControl::update(float input, unsigned long currentTime,
+                        float extIntFactor) {
   float error = setpoint - input;
 
   // Return early if it's too soon for an update.
-  if (currentTime - prevTime < dt)
-  {
+  if (currentTime - prevTime < dt) {
     return;
   }
 
   // Store integral term separately to handle a time-varying ki gain parameter
-  integralTerm += extIntFactor*ki*error;
+  integralTerm += extIntFactor * ki * error;
 
   // Avoid integral windup by constraining integral term to output limits
   integralTerm = clamped(integralTerm, minOutput, maxOutput);
@@ -45,8 +44,7 @@ void PIDControl::update(float input, unsigned long currentTime, float extIntFact
   prevTime = currentTime;
 }
 
-void PIDControl::setPID(float p, float i, float d)
-{
+void PIDControl::setPID(float p, float i, float d) {
   kp = p;
 
   // Correct for step-size dependence in the integration and differentiation.
@@ -54,16 +52,13 @@ void PIDControl::setPID(float p, float i, float d)
   kd = d / dt;
 }
 
-void PIDControl::setDtMilliseconds(unsigned long updateInterval)
-{
-  dt = updateInterval; // ms
+void PIDControl::setDtMilliseconds(unsigned long updateInterval) {
+  dt = updateInterval;  // ms
 
   // Adjust PID parameters for the new time step size
   setPID(kp, ki, kd);
 }
 
-float PIDControl::clamped(float val, float low, float high)
-{
+float PIDControl::clamped(float val, float low, float high) {
   return val < low ? low : val > high ? high : val;
 }
-

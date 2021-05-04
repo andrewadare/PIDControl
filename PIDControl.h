@@ -1,12 +1,9 @@
 
-#ifndef __PID_CONTROL_H__
-#define __PID_CONTROL_H__
+#ifndef __PID_CONTROL_h__
+#define __PID_CONTROL_h__
 
-
-class PIDControl
-{
-public:
-
+class PIDControl {
+ public:
   /**
    * @constructor
    *
@@ -16,7 +13,8 @@ public:
    * @param initialSetpoint - in units of the process variable
    * @param timestep - update interval in milliseconds
    */
-  PIDControl(float p, float i, float d, float initialSetpoint, unsigned long timestep);
+  PIDControl(float p, float i, float d, float initialSetpoint,
+             unsigned long timestep);
 
   ~PIDControl() {}
 
@@ -57,8 +55,8 @@ public:
   void setDtMilliseconds(unsigned long updateInterval);
 
   // Coefficients for the 3 PID terms (error e defined as setpoint - input):
-  // Proportional (kp*e), integral (ki*sum(e) over dt), and derivative (kd*de/dt)
-  // Public for convenient read access, but use setPID to assign.
+  // Proportional (kp*e), integral (ki*sum(e) over dt), and derivative
+  // (kd*de/dt) Public for convenient read access, but use setPID to assign.
   float kp;
   float ki;
   float kd;
